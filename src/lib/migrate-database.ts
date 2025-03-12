@@ -7,7 +7,116 @@ async function migrateDatabase() {
   try {
     console.log("Starting database migration...");
 
-    // Create subscription_plans table
+    // Create tables directly
+    try {
+      console.log("Creating users table...");
+      await supabase.rpc("exec_sql", {
+        sql: `
+          CREATE TABLE IF NOT EXISTS users (
+            id UUID PRIMARY KEY,
+            email TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            full_name TEXT,
+            role TEXT NOT NULL,
+            is_verified BOOLEAN NOT NULL DEFAULT false,
+            status TEXT DEFAULT 'active',
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            last_login TIMESTAMP WITH TIME ZONE
+          );
+        `,
+      });
+
+      console.log("Creating subscription_plans table...");
+      await supabase.rpc("exec_sql", {
+        sql: `
+          CREATE TABLE IF NOT EXISTS subscription_plans (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            price DECIMAL(10, 2) NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'USD',
+            billing_cycle TEXT NOT NULL,
+            device_limit INTEGER NOT NULL,
+            is_active BOOLEAN NOT NULL DEFAULT true,
+            features JSONB,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          );
+        `,
+      });
+
+      console.log("Creating subscriptions table...");
+      await supabase.rpc("exec_sql", {
+        sql: `
+          CREATE TABLE IF NOT EXISTS subscriptions (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_id UUID NOT NULL,
+            plan_id TEXT NOT NULL,
+            status TEXT NOT NULL,
+            start_date TIMESTAMP WITH TIME ZONE NOT NULL,
+            end_date TIMESTAMP WITH TIME ZONE NOT NULL,
+            auto_renew BOOLEAN NOT NULL DEFAULT true,
+            payment_method JSONB,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          );
+        `,
+      });
+
+      console.log("Creating devices table...");
+      await supabase.rpc("exec_sql", {
+        sql: `
+          CREATE TABLE IF NOT EXISTS devices (
+            id TEXT PRIMARY KEY,
+            user_id UUID NOT NULL,
+            name TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'offline',
+            settings JSONB,
+            last_connection TIMESTAMP WITH TIME ZONE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          );
+        `,
+      });
+
+      console.log("Creating active_sessions table...");
+      await supabase.rpc("exec_sql", {
+        sql: `
+          CREATE TABLE IF NOT EXISTS active_sessions (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            device_id TEXT NOT NULL,
+            parent_id UUID NOT NULL,
+            session_id TEXT NOT NULL,
+            started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            ended_at TIMESTAMP WITH TIME ZONE,
+            duration INTEGER,
+            settings JSONB
+          );
+        `,
+      });
+
+      console.log("Creating activity_logs table...");
+      await supabase.rpc("exec_sql", {
+        sql: `
+          CREATE TABLE IF NOT EXISTS activity_logs (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            device_id TEXT NOT NULL,
+            parent_id UUID NOT NULL,
+            action TEXT NOT NULL,
+            status TEXT NOT NULL,
+            started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            ended_at TIMESTAMP WITH TIME ZONE,
+            duration INTEGER,
+            details JSONB
+          );
+        `,
+      });
+    } catch (error) {
+      console.error("Error creating tables:", error);
+    }
+
+    // Insert default subscription plans
     try {
       const { data: plansExist } = await supabase
         .from("subscription_plans")
@@ -15,7 +124,7 @@ async function migrateDatabase() {
         .limit(1);
 
       if (!plansExist || plansExist.length === 0) {
-        console.log("Creating subscription plans table...");
+        console.log("Creating subscription plans...");
         await supabase.from("subscription_plans").insert([
           {
             id: "basic-monthly",

@@ -4,8 +4,7 @@ import Home from "./components/home";
 import ChildRoute from "./components/ChildRoute";
 import ChildLogin from "./components/ChildLogin";
 import routes from "tempo-routes";
-import migrateDatabase from "./lib/migrate-database";
-import migratePricingPlans from "./lib/migrate-database-pricing";
+import migrateSqliteDatabase from "./lib/migrate-sqlite";
 import LandingPage from "./components/landing/LandingPage";
 
 // Lazy load components for better performance
@@ -29,18 +28,15 @@ const ContactUs = lazy(() => import("./pages/ContactUs"));
 const AffiliateProgram = lazy(() => import("./pages/AffiliateProgram"));
 
 function App() {
-  // Run database migration on app start
+  // Run SQLite database migration on app start
   useEffect(() => {
     const setupDatabase = async () => {
       try {
-        const result = await migrateDatabase();
-        console.log("Database setup result:", result);
-
-        // After database is set up, migrate pricing plans
-        const pricingResult = await migratePricingPlans();
-        console.log("Pricing plans setup result:", pricingResult);
+        // Run SQLite migrations
+        const result = await migrateSqliteDatabase();
+        console.log("SQLite database setup result:", result);
       } catch (error) {
-        console.error("Failed to set up database:", error);
+        console.error("Failed to set up SQLite database:", error);
       }
     };
 
