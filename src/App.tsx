@@ -5,6 +5,7 @@ import ChildRoute from "./components/ChildRoute";
 import ChildLogin from "./components/ChildLogin";
 import routes from "tempo-routes";
 import migrateDatabase from "./lib/migrate-database";
+import LandingPage from "./components/landing/LandingPage";
 
 // Lazy load components for better performance
 const AdminLoginForm = lazy(() => import("./components/auth/AdminLoginForm"));
@@ -18,6 +19,10 @@ const CheckoutForm = lazy(
 const LoginForm = lazy(() => import("./components/auth/LoginForm"));
 const RegisterForm = lazy(() => import("./components/auth/RegisterForm"));
 const RegisterSuccess = lazy(() => import("./pages/RegisterSuccess"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const ContactUs = lazy(() => import("./pages/ContactUs"));
+const AffiliateProgram = lazy(() => import("./pages/AffiliateProgram"));
 
 function App() {
   // Run database migration on app start
@@ -39,7 +44,8 @@ function App() {
       <>
         <Routes>
           {/* Main routes */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Home />} />
 
           {/* Auth routes */}
           <Route path="/login" element={<LoginForm />} />
@@ -57,6 +63,12 @@ function App() {
           {/* Subscription routes */}
           <Route path="/pricing" element={<PricingPlans />} />
           <Route path="/subscribe/:planId" element={<CheckoutForm />} />
+
+          {/* Legal and info pages */}
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/affiliate-program" element={<AffiliateProgram />} />
         </Routes>
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
       </>
