@@ -67,13 +67,8 @@ const DeviceList = ({
   showAdminControls = true,
   onStartMonitoring = (deviceId) => {
     console.log(`Start monitoring device ${deviceId}`);
-    // Check if device already has an active session
-    if (hasActiveSession(deviceId)) {
-      alert("This device is already being monitored by another user.");
-      return;
-    }
-    // In a real app, this would initiate the WebRTC connection
     // For demo purposes, we'll just open the child route
+    // In a real app with Supabase, we would check for active sessions
     window.open(`/child/dashboard?deviceId=${deviceId}`, "_blank");
   },
 }: DeviceListProps) => {
