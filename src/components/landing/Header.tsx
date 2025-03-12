@@ -22,21 +22,24 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
+  const isHomePage = location.pathname === "/";
+  const isTransparent = isHomePage && !isScrolled;
+
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-200 ${isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"}`}
+      className={`sticky top-0 z-50 transition-all duration-200 ${isTransparent ? "bg-transparent py-4" : "bg-white shadow-md py-2"}`}
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <div
-              className={`p-2 rounded-full mr-2 ${isScrolled || location.pathname !== "/" ? "bg-blue-600 text-white" : "bg-white text-blue-600"}`}
+              className={`p-2 rounded-full mr-2 ${isTransparent ? "bg-white text-blue-600" : "bg-blue-600 text-white"}`}
             >
               <Shield className="h-6 w-6" />
             </div>
             <span
-              className={`text-xl font-bold ${isScrolled || location.pathname !== "/" ? "text-blue-600" : "text-white"}`}
+              className={`text-xl font-bold ${isTransparent ? "text-white" : "text-blue-600"}`}
             >
               ParentConnect
             </span>
@@ -44,33 +47,17 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <NavLink
-              to="/#features"
-              isScrolled={isScrolled}
-              currentPath={location.pathname}
-            >
+            <NavLink to="/#features" isTransparent={isTransparent}>
               Features
             </NavLink>
-            <NavLink
-              to="/pricing"
-              isScrolled={isScrolled}
-              currentPath={location.pathname}
-            >
+            <NavLink to="/pricing" isTransparent={isTransparent}>
               Pricing
             </NavLink>
-            <NavLink
-              to="/contact"
-              isScrolled={isScrolled}
-              currentPath={location.pathname}
-            >
+            <NavLink to="/contact" isTransparent={isTransparent}>
               Contact
             </NavLink>
-            <NavLink
-              to="/about"
-              isScrolled={isScrolled}
-              currentPath={location.pathname}
-            >
-              About
+            <NavLink to="/terms" isTransparent={isTransparent}>
+              Terms
             </NavLink>
 
             <div className="flex items-center space-x-2">
@@ -78,9 +65,9 @@ const Header = () => {
                 asChild
                 variant="ghost"
                 className={
-                  isScrolled || location.pathname !== "/"
-                    ? ""
-                    : "text-white hover:bg-white/20"
+                  isTransparent
+                    ? "text-white hover:bg-white/20"
+                    : "text-gray-700 hover:bg-gray-100"
                 }
               >
                 <Link to="/login">Log in</Link>
@@ -88,9 +75,9 @@ const Header = () => {
               <Button
                 asChild
                 className={
-                  isScrolled || location.pathname !== "/"
-                    ? "bg-blue-600"
-                    : "bg-white text-blue-600 hover:bg-blue-50"
+                  isTransparent
+                    ? "bg-white text-blue-600 hover:bg-blue-50"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
                 }
               >
                 <Link to="/register">Sign up</Link>
@@ -106,11 +93,11 @@ const Header = () => {
           >
             {isMobileMenuOpen ? (
               <X
-                className={`h-6 w-6 ${isScrolled || location.pathname !== "/" ? "text-blue-600" : "text-white"}`}
+                className={`h-6 w-6 ${isTransparent ? "text-white" : "text-blue-600"}`}
               />
             ) : (
               <Menu
-                className={`h-6 w-6 ${isScrolled || location.pathname !== "/" ? "text-blue-600" : "text-white"}`}
+                className={`h-6 w-6 ${isTransparent ? "text-white" : "text-blue-600"}`}
               />
             )}
           </button>
@@ -123,7 +110,7 @@ const Header = () => {
               <MobileNavLink to="/#features">Features</MobileNavLink>
               <MobileNavLink to="/pricing">Pricing</MobileNavLink>
               <MobileNavLink to="/contact">Contact</MobileNavLink>
-              <MobileNavLink to="/about">About</MobileNavLink>
+              <MobileNavLink to="/terms">Terms</MobileNavLink>
               <div className="pt-3 border-t border-gray-100 flex flex-col space-y-2">
                 <Button asChild variant="outline">
                   <Link to="/login">Log in</Link>
@@ -143,19 +130,15 @@ const Header = () => {
 const NavLink = ({
   to,
   children,
-  isScrolled,
-  currentPath,
+  isTransparent,
 }: {
   to: string;
   children: React.ReactNode;
-  isScrolled: boolean;
-  currentPath: string;
+  isTransparent: boolean;
 }) => {
-  const isHomePage = currentPath === "/";
-  const textColor =
-    isScrolled || !isHomePage
-      ? "text-gray-700 hover:text-blue-600"
-      : "text-white hover:text-blue-100";
+  const textColor = isTransparent
+    ? "text-white hover:text-blue-100"
+    : "text-gray-700 hover:text-blue-600";
 
   return (
     <Link to={to} className={`font-medium ${textColor}`}>

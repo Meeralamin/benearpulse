@@ -306,13 +306,69 @@ export const hasActiveSession = async (deviceId: string) => {
 
 // Subscription management
 export const getSubscriptionPlans = async () => {
-  const { data, error } = await supabase
-    .from("subscription_plans")
-    .select("*")
-    .eq("is_active", true);
+  try {
+    const { data, error } = await supabase
+      .from("subscription_plans")
+      .select("*")
+      .eq("is_active", true);
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    console.log("Subscription plans from DB:", data);
+    return data || [];
+  } catch (err) {
+    console.error("Error fetching subscription plans:", err);
+    // Return fallback plans if database fetch fails
+    return [
+      {
+        id: "basic-monthly",
+        name: "Basic Plan",
+        description: "Perfect for monitoring a single child's device",
+        price: 9.99,
+        currency: "USD",
+        billing_cycle: "monthly",
+        device_limit: 1,
+        is_active: true,
+        features: {
+          videoQuality: "Standard",
+          cloudRecording: false,
+          historyRetention: "7 days",
+          prioritySupport: false,
+        },
+      },
+      {
+        id: "family-monthly",
+        name: "Family Plan",
+        description: "Monitor multiple devices with enhanced features",
+        price: 19.99,
+        currency: "USD",
+        billing_cycle: "monthly",
+        device_limit: 3,
+        is_active: true,
+        features: {
+          videoQuality: "HD",
+          cloudRecording: true,
+          historyRetention: "14 days",
+          prioritySupport: false,
+        },
+      },
+      {
+        id: "premium-monthly",
+        name: "Premium Plan",
+        description: "Unlimited devices with all premium features",
+        price: 29.99,
+        currency: "USD",
+        billing_cycle: "monthly",
+        device_limit: 5,
+        is_active: true,
+        features: {
+          videoQuality: "4K",
+          cloudRecording: true,
+          historyRetention: "30 days",
+          prioritySupport: true,
+        },
+      },
+    ];
+  }
 };
 
 export const getUserSubscription = async (userId: string) => {

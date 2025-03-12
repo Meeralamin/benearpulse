@@ -44,6 +44,7 @@ const PricingPlans = () => {
     const fetchPlans = async () => {
       try {
         const plansData = await getSubscriptionPlans();
+        console.log("Fetched plans:", plansData);
 
         // Process plans to add display features
         const processedPlans = plansData.map((plan) => {

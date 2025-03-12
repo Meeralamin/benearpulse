@@ -5,11 +5,15 @@ import ChildRoute from "./components/ChildRoute";
 import ChildLogin from "./components/ChildLogin";
 import routes from "tempo-routes";
 import migrateDatabase from "./lib/migrate-database";
+import migratePricingPlans from "./lib/migrate-database-pricing";
 import LandingPage from "./components/landing/LandingPage";
 
 // Lazy load components for better performance
 const AdminLoginForm = lazy(() => import("./components/auth/AdminLoginForm"));
 const AdminDashboard = lazy(() => import("./components/admin/AdminDashboard"));
+const UsersManagement = lazy(
+  () => import("./components/admin/UsersManagement"),
+);
 const PricingPlans = lazy(
   () => import("./components/subscription/PricingPlans"),
 );
@@ -31,6 +35,10 @@ function App() {
       try {
         const result = await migrateDatabase();
         console.log("Database setup result:", result);
+
+        // After database is set up, migrate pricing plans
+        const pricingResult = await migratePricingPlans();
+        console.log("Pricing plans setup result:", pricingResult);
       } catch (error) {
         console.error("Failed to set up database:", error);
       }
@@ -59,6 +67,7 @@ function App() {
           {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLoginForm />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UsersManagement />} />
 
           {/* Subscription routes */}
           <Route path="/pricing" element={<PricingPlans />} />
